@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using SensorValue;
 using CommonReferences;
 
 namespace TCPCommunication
@@ -15,10 +12,10 @@ namespace TCPCommunication
 
     public class TCPCommServer
     {
-        private Int16 _port = 1020;
-        private string _thisServerIP = "0.0.0.0";
+        private Int16 _port = 1020;         // the communication port for the TCP/IP server
+        private string _thisServerIP = "0.0.0.0";  // the IP for this machine, we'll find it
 
-        protected TcpListener server;
+        protected TcpListener server;  // the TCP server
         protected List<Thread> ServerThreadList = new List<Thread>();
 
         private bool _isRunning = false;
@@ -52,11 +49,13 @@ namespace TCPCommunication
             {
                 return;
             }
+            // create a new thread for the TCP listener
             Thread newThread = new Thread(StartInNewThread);
             ServerThreadList.Add(newThread);
             newThread.Start();
         }
 
+        // start the server; if a new connection request arrives, start a new thread
         private void StartInNewThread()
         {
             server = new TcpListener(IPAddress.Parse(_thisServerIP), _port);
@@ -66,10 +65,17 @@ namespace TCPCommunication
             {
                 if (server.Pending())
                 {
+                    // clear the threads list
                     RemouveClosedThreadsFromList();
+
+                    // accept client
                     TcpClient tempClient = server.AcceptTcpClient();
+
+                    // new thread with parameters
                     Thread newThread = new Thread(new ParameterizedThreadStart(ClientThread));
                     ServerThreadList.Add(newThread);
+
+                    // start the thread
                     newThread.Start(tempClient);
                 }
                 Thread.Sleep(100);
@@ -77,9 +83,12 @@ namespace TCPCommunication
             server.Stop();
         }
 
+        // check if a thread is alive, if not the thread is removed from the list
+        // refresh the threads list, keep only the running threads, the others closed
         private void RemouveClosedThreadsFromList()
         {
             List<Thread> myAliveThreadList = new List<Thread>();
+            // put the alive threads into a new list and abort the others
             foreach (Thread thread in ServerThreadList)
             {
                 if (thread.IsAlive)
@@ -91,9 +100,11 @@ namespace TCPCommunication
                     thread.Abort();
                 }
             }
+            // update myThreadList with only the alive threads
             ServerThreadList = myAliveThreadList;
         }
 
+        // stop the TCP server; abort all running threads associated with this server
         private void CloseTCPServer()
         {
             if (server != null)
@@ -111,7 +122,7 @@ namespace TCPCommunication
         {
             TcpClient client = (TcpClient)clientData;
             NetworkStream stream = client.GetStream();
-            stream.ReadTimeout = 60 * 1000;
+            stream.ReadTimeout = 60 * 1000; // wait 60 seconds for receiving data
 
             List<byte> signalValueInBytes = new List<byte>();
             int bufData = 0;
@@ -120,13 +131,16 @@ namespace TCPCommunication
             {
                 while (client.Connected && stream.DataAvailable)
                 {
-                    bufData = stream.ReadByte();
+                    bufData = stream.ReadByte(); // wait for getting some data from the client
                     if (bufData == -1) break;
                     signalValueInBytes.Add((byte)bufData);
                 }
 
+                // convert the bytes received to string
                 ASCIIEncoding enc = new ASCIIEncoding();
                 string receivedText = enc.GetString(signalValueInBytes.ToArray());
+
+                // unpack the text and raise an event with the newSignalValue received
                 UnpackSignalAndRaiseTheEvent(receivedText);
             }
             catch (Exception ex)
@@ -143,9 +157,9 @@ namespace TCPCommunication
             string signalName = string.Empty;
 
             string[] ValuesList = packedSignalValue.Split('#');
-            foreach (string value in ValuesList) // Modificarea numelui variabilei de la packedSignalValue la value
+            foreach (string value in ValuesList)    // foreach received value from the list
             {
-                if (value.Length > 0)
+                if (value.Length > 0)   // packet with length > 0
                 {
                     string[] valueFields = value.Split(',');
                     signalName = valueFields[0];
@@ -167,6 +181,7 @@ namespace TCPCommunication
                             Double.TryParse(strDataValue, out doubleValue);
                             dataValueList.Add(doubleValue);
                         }
+                        // send the data into the system, should be catched by DataStoreInputAdapter
                         SendNewDataReceivedEvent(new SensorValue.SensorValue(strPatientCode, sensorType, dataValueList[0], timeStamp));
                     }
                     catch (Exception ex)
@@ -198,7 +213,5 @@ namespace TCPCommunication
                 throw new Exception(" Error on closing TCP server connection -> " + ex.Message);
             }
         }
-
-
     }
 }

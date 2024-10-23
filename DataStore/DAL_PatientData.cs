@@ -1,5 +1,4 @@
-﻿using SensorValue;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -11,7 +10,7 @@ namespace DataStore
     {
         public static void AddData(SensorValue.SensorValue sensorData)
         {
-            // Verificare dacă sensorData sau una dintre proprietățile sale este null sau goală
+            // check if sensorData or one of its properties is null or empty
             if (sensorData == null)
             {
                 throw new ArgumentNullException(nameof(sensorData), "Sensor data is null.");
@@ -23,7 +22,7 @@ namespace DataStore
                 throw new ArgumentException("Patient code is null or empty.", nameof(sensorData.PatientCode));
             }
 
-            if (sensorData.Type == null) // Asumând că sensorData.Type poate fi null
+            if (sensorData.Type == null) // check if sensorData.Type is null
             {
                 Console.WriteLine(sensorData.Type);
                 throw new ArgumentException("Sensor type is null.", nameof(sensorData.Type));
@@ -52,7 +51,7 @@ namespace DataStore
             }
             catch (Exception ex)
             {
-                // Înregistrează excepția originală și aruncă o nouă excepție cu un mesaj detaliat
+                // throw a new exception with a detailed message
                 throw new Exception("Error adding PatientData: " + ex.Message, ex);
             }
             finally

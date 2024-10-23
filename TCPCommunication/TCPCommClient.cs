@@ -9,15 +9,17 @@ namespace TCPCommunication
 {
     public class TCPCommClient :IDisposable
     {
-        private string _serverIP = String.Empty; // Declararea variabilei _serverIP
+        private string _serverIP = String.Empty; // declare the _serverIP variable
         protected bool _running = false;
         protected Int16 _port = 1020;
-        private List<Thread> myThreadList = new List<Thread>(); // Declararea listei de thread-uri
+        private List<Thread> myThreadList = new List<Thread>(); // declare the threads list
 
         #region Constructors 
 
+        //make the implicit constructor private
         private TCPCommClient()
         {
+
         }
 
         public TCPCommClient(string serverIP)
@@ -59,7 +61,9 @@ namespace TCPCommunication
         {
             try
             {
+                // clean the threads list with finished threads
                 RemouveClosedThreadsFromList();
+                // create a new thread for sending the data
                 Thread newThread = new Thread(new ParameterizedThreadStart(SendSignalTextNewThread));
                 myThreadList.Add(newThread);
                 newThread.Start(signalText);
@@ -75,6 +79,7 @@ namespace TCPCommunication
             try
             {
                 List<Thread> myAliveThreadList = new List<Thread>();
+                // put the alive threads into a new list and abort the others
                 foreach (Thread thread in myThreadList)
                 {
                     if (thread.IsAlive)
@@ -86,7 +91,7 @@ namespace TCPCommunication
                         thread.Abort();
                     }
                 }
-
+                // update myThreadList with only the alive threads
                 myThreadList = myAliveThreadList;
 
             }
@@ -104,11 +109,14 @@ namespace TCPCommunication
             {
                 TcpClient myTCPClient = new TcpClient(_serverIP, _port);
 
+                // get the stream for transmitting data
                 NetworkStream stream = myTCPClient.GetStream();
 
+                // convert the data to bytes
                 ASCIIEncoding encoding = new ASCIIEncoding();
                 byte[] buffer = encoding.GetBytes(signalText);
 
+                // send the data
                 stream.Write(buffer, 0, buffer.Length);
                 myTCPClient.Close();
             }

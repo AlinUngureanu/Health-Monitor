@@ -11,8 +11,6 @@ namespace DataPresentation
     {
         Dictionary<PatientCodeEnum, PumpSensorValues> dictPatientPump = new Dictionary<PatientCodeEnum, PumpSensorValues>();
 
-
-
         private void startPumping(PatientCodeEnum patCodeEnum, int periodSeconds)
         {
             if (dictPatientPump.ContainsKey(patCodeEnum))
@@ -38,6 +36,7 @@ namespace DataPresentation
          } */
 
         public delegate void VoidFunctionDelegate();
+
         private bool displayTheReceivingData = true;
         private bool sendAlsoThroughTCP = false;
         private TCPCommServer tcpCommServer;
@@ -49,13 +48,13 @@ namespace DataPresentation
             cbPatientCodeStart.DataSource = Enum.GetValues(typeof(PatientCodeEnum));
             cbPacientFilter.DataSource = Enum.GetValues(typeof(PatientCodeEnum));
 
-            tcpCommServer = new TCPCommServer();
+            tcpCommServer = new TCPCommServer(); // create and start the TCPCommServer
             tcpCommServer.newSignalReceivedEvent += new NewSignalReceived(tcpCommServer_newSignalReceivedEvent);
-
         }
 
         void tcpCommServer_newSignalReceivedEvent(SensorValue.SensorValue sensorValue)
         {
+            // display this event on the datagrid
             OnNewSensorValueHandler(sensorValue);
         }
 
@@ -119,7 +118,6 @@ namespace DataPresentation
             }
         }
 
-
         List<SensorValue.SensorValue> sensorValueListPast = new List<SensorValue.SensorValue>();
 
         private void bDisplayData_Click(object sender, EventArgs e)
@@ -146,6 +144,5 @@ namespace DataPresentation
             if(tcpCommClient != null) tcpCommClient.Dispose();
 
         }
-
     }
 }

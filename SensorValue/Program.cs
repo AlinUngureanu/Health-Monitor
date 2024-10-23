@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommonReferences;
 
 namespace SensorValue
@@ -13,14 +9,14 @@ namespace SensorValue
         {
             Console.WriteLine("Instantierea clasei SensorValue\n\r");
 
-            //instantiere folosind constructorul implicit. Valorile de masurare se dau folosind proprietarile
+            // instantiation using the default constructor; the measurement values ​​are given using the properties
             SensorValue sensor1 = new SensorValue();
             sensor1.Type = SensorType.BloodGlucose;
             sensor1.TimeStamp = DateTime.Now;
             sensor1.Value = 100; //mg/d1
             DisplaySensorValues("Primul sensor initializat ", sensor1);
 
-            //instantiere folosind constructorul cu parametri
+            // instantiation using the constructor with parameters
             SensorValue sensor2 = new SensorValue(SensorType.SkinTemperature, 36.7, "23-Jan-10 14:56:00");
             DisplaySensorValues("Al doilea sensor initializat ", sensor2);
             PumpSensorValues sensorValuesPump = new PumpSensorValues(3);
@@ -29,6 +25,7 @@ namespace SensorValue
             Console.ReadLine();
             sensorValuesPump.StopPumping();
         }
+
         internal static void DisplaySensorValues(string headerText, SensorValue sensor)
         {
             Console.WriteLine("\t " + headerText);

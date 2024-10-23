@@ -6,7 +6,6 @@ namespace CommonReferences
     {
         static void Main(string[] args)
         {
-            // Aici puteți adăuga codul dorit pentru a rula proiectul
             Console.WriteLine("Hello World!");
         }
     }
@@ -31,6 +30,6 @@ namespace CommonReferences
 
     class CommonReferecesDefinitions
     {
-        // Aici puteți adăuga alte definiții comune dacă este necesar
+
     }
 }

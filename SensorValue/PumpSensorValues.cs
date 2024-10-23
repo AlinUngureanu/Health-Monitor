@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using CommonReferences;
 
 namespace SensorValue
 {
-
     public delegate void OnNewSensorValue(SensorValue sensorValueArg);
     public class PumpSensorValues
     {
         public event OnNewSensorValue newSensorValueEvent;
-        System.Timers.Timer timerBase; // Specificam explicit ca folosim System.Timers.Timer
-                                       // Timer timerBase;
+        Timer timerBase; // we explicitly specify that we use System.Timers.Timer
         Random myRandom;
 
         private string patientCode;
@@ -26,13 +20,14 @@ namespace SensorValue
 
         public PumpSensorValues(int periodSecondsBetweenValues)
         {
-            //start the random number generator
+            // start the random number generator
             myRandom = new Random();
-            //define the timer for pumping sensor values
-            timerBase = new System.Timers.Timer();
-            timerBase.Interval = periodSecondsBetweenValues * 1000; //interval between ticks
+            // define the timer for pumping sensor values
+            timerBase = new Timer();
+            timerBase.Interval = periodSecondsBetweenValues * 1000; // interval between ticks
             timerBase.Elapsed += new ElapsedEventHandler(timerBase_Elapsed);
         }
+
         public void StartPumping()
         {
             timerBase.Start();
@@ -43,16 +38,20 @@ namespace SensorValue
             timerBase.Stop();
         }
 
+        // get a random sensor type and a random value for it and display the generated value
+        // to the Console
         private void timerBase_Elapsed(Object sender, ElapsedEventArgs e)
         {
             int minNumber, maxNumber; double valueRandom;
-
+            // 1. get a random sensor type
+            // 1.1. find the boundaries for this random type
             int maxSensorTyper = System.Enum.GetValues(typeof(SensorType)).GetUpperBound(0);
-
+            // 1.2. get a random number between 0 and maxSensorType
             int typeRandom = myRandom.Next(1, maxSensorTyper + 1);
             SensorType sensorTypeRandom = (SensorType)typeRandom;
 
-
+            // 2. get a random value for the current sensorTypeRandom
+            // 2.1. find the boundaries for the current type
             switch (sensorTypeRandom)
             {
                 case SensorType.SkinTemperature:
@@ -80,7 +79,6 @@ namespace SensorValue
             {
                 newSensorValueEvent(sensorRandom);
             }
-            
         }
     }
 }
